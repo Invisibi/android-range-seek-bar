@@ -119,6 +119,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
     private int mActiveColor;
     private int mDefaultColor;
     private int mTextAboveThumbsColor;
+    private int mTextDistanceToButton;
 
     public RangeSeekBar(Context context) {
         super(context);
@@ -158,12 +159,12 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
         if (attrs == null) {
             setRangeToDefaultValues();
-            mInternalPad    = PixelUtil.dpToPx(context, INITIAL_PADDING_IN_DP);
-            barHeight       = PixelUtil.dpToPx(context, LINE_HEIGHT_IN_DP);
-            mActiveColor    = ACTIVE_COLOR;
-            mDefaultColor   = Color.GRAY;
+            mInternalPad = PixelUtil.dpToPx(context, INITIAL_PADDING_IN_DP);
+            barHeight = PixelUtil.dpToPx(context, LINE_HEIGHT_IN_DP);
+            mActiveColor = ACTIVE_COLOR;
+            mDefaultColor = Color.GRAY;
             mTextAboveThumbsColor = Color.WHITE;
-            mAlwaysActive   = false;
+            mAlwaysActive = false;
             mShowTextAboveThumbs = true;
         } else {
             TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.RangeSeekBar, 0, 0);
@@ -173,14 +174,15 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                         extractNumericValueFromAttributes(a, R.styleable.RangeSeekBar_absoluteMaxValue, DEFAULT_MAXIMUM)
                 );
                 mShowTextAboveThumbs = a.getBoolean(R.styleable.RangeSeekBar_valuesAboveThumbs, true);
-                mSingleThumb    = a.getBoolean(R.styleable.RangeSeekBar_singleThumb, false);
-                mShowLabels     = a.getBoolean(R.styleable.RangeSeekBar_showLabels, true);
-                mInternalPad    = a.getDimensionPixelSize(R.styleable.RangeSeekBar_internalPadding, INITIAL_PADDING_IN_DP);
-                barHeight       = a.getDimensionPixelSize(R.styleable.RangeSeekBar_barHeight, LINE_HEIGHT_IN_DP);
-                mActiveColor    = a.getColor(R.styleable.RangeSeekBar_activeColor, ACTIVE_COLOR);
-                mDefaultColor   = a.getColor(R.styleable.RangeSeekBar_defaultColor, Color.GRAY);
+                mSingleThumb = a.getBoolean(R.styleable.RangeSeekBar_singleThumb, false);
+                mShowLabels = a.getBoolean(R.styleable.RangeSeekBar_showLabels, true);
+                mInternalPad = a.getDimensionPixelSize(R.styleable.RangeSeekBar_internalPadding, INITIAL_PADDING_IN_DP);
+                barHeight = a.getDimensionPixelSize(R.styleable.RangeSeekBar_barHeight, LINE_HEIGHT_IN_DP);
+                mActiveColor = a.getColor(R.styleable.RangeSeekBar_activeColor, ACTIVE_COLOR);
+                mDefaultColor = a.getColor(R.styleable.RangeSeekBar_defaultColor, Color.GRAY);
                 mTextAboveThumbsColor = a.getColor(R.styleable.RangeSeekBar_textAboveThumbsColor, Color.WHITE);
-                mAlwaysActive   = a.getBoolean(R.styleable.RangeSeekBar_alwaysActive, false);
+                mAlwaysActive = a.getBoolean(R.styleable.RangeSeekBar_alwaysActive, false);
+                mTextDistanceToButton = a.getDimensionPixelSize(R.styleable.RangeSeekBar_textDistanceToThumb, DEFAULT_TEXT_DISTANCE_TO_BUTTON_IN_DP);
                 Drawable normalDrawable = a.getDrawable(R.styleable.RangeSeekBar_thumbNormal);
                 if (normalDrawable != null) {
                     thumbImage = BitmapUtil.drawableToBitmap(normalDrawable);
@@ -216,12 +218,12 @@ public class RangeSeekBar<T extends Number> extends ImageView {
         mTextSize = PixelUtil.dpToPx(context, DEFAULT_TEXT_SIZE_IN_DP);
         mDistanceToTop = PixelUtil.dpToPx(context, DEFAULT_TEXT_DISTANCE_TO_TOP_IN_DP);
         mTextOffset = !mShowTextAboveThumbs ? 0 : this.mTextSize + PixelUtil.dpToPx(context,
-                                                        DEFAULT_TEXT_DISTANCE_TO_BUTTON_IN_DP) + this.mDistanceToTop;
+                mTextDistanceToButton) + this.mDistanceToTop;
 
         mRect = new RectF(padding,
-                          mTextOffset + mThumbHalfHeight - barHeight / 2,
-                          getWidth() - padding,
-                          mTextOffset + mThumbHalfHeight + barHeight / 2);
+                mTextOffset + mThumbHalfHeight - barHeight / 2,
+                getWidth() - padding,
+                mTextOffset + mThumbHalfHeight + barHeight / 2);
 
         // make RangeSeekBar focusable. This solves focus handling issues in case EditText widgets are being used along with the RangeSeekBar within ScrollViews.
         setFocusable(true);
@@ -563,7 +565,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
         // draw minimum thumb if not a single thumb control
         if (!mSingleThumb) {
             drawThumb(normalizedToScreen(normalizedMinValue), Thumb.MIN.equals(pressedThumb), canvas,
-                      selectedValuesAreDefault);
+                    selectedValuesAreDefault);
         }
 
         // draw maximum thumb
@@ -584,16 +586,16 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
             if (!mSingleThumb) {
                 canvas.drawText(minText,
-                                normalizedToScreen(normalizedMinValue) - minTextWidth * 0.5f,
-                                mDistanceToTop + mTextSize,
-                                paint);
+                        normalizedToScreen(normalizedMinValue) - minTextWidth * 0.5f,
+                        mDistanceToTop + mTextSize,
+                        paint);
 
             }
 
             canvas.drawText(maxText,
-                            normalizedToScreen(normalizedMaxValue) - maxTextWidth * 0.5f,
-                            mDistanceToTop + mTextSize,
-                            paint);
+                    normalizedToScreen(normalizedMaxValue) - maxTextWidth * 0.5f,
+                    mDistanceToTop + mTextSize,
+                    paint);
         }
 
     }
@@ -637,8 +639,8 @@ public class RangeSeekBar<T extends Number> extends ImageView {
         }
 
         canvas.drawBitmap(buttonToDraw, screenCoord - mThumbHalfWidth,
-                          mTextOffset,
-                          paint);
+                mTextOffset,
+                paint);
     }
 
     /**
