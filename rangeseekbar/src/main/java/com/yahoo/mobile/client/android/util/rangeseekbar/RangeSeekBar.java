@@ -120,6 +120,8 @@ public class RangeSeekBar<T extends Number> extends ImageView {
     private int mDefaultColor;
     private int mTextAboveThumbsColor;
     private int mTextDistanceToButton;
+    private int mMinThumbOffset;
+    private int mMaxThumbOffset;
 
     public RangeSeekBar(Context context) {
         super(context);
@@ -183,6 +185,9 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                 mTextAboveThumbsColor = a.getColor(R.styleable.RangeSeekBar_textAboveThumbsColor, Color.WHITE);
                 mAlwaysActive = a.getBoolean(R.styleable.RangeSeekBar_alwaysActive, false);
                 mTextDistanceToButton = a.getDimensionPixelSize(R.styleable.RangeSeekBar_textDistanceToThumb, DEFAULT_TEXT_DISTANCE_TO_BUTTON_IN_DP);
+                mMinThumbOffset = a.getDimensionPixelSize(R.styleable.RangeSeekBar_minThumbOffset, 0);
+                mMaxThumbOffset = a.getDimensionPixelSize(R.styleable.RangeSeekBar_maxThumbOffset, 0);
+
                 Drawable normalDrawable = a.getDrawable(R.styleable.RangeSeekBar_thumbNormal);
                 if (normalDrawable != null) {
                     thumbImage = BitmapUtil.drawableToBitmap(normalDrawable);
@@ -564,12 +569,12 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
         // draw minimum thumb if not a single thumb control
         if (!mSingleThumb) {
-            drawThumb(normalizedToScreen(normalizedMinValue), Thumb.MIN.equals(pressedThumb), canvas,
+            drawThumb(normalizedToScreen(normalizedMinValue), mTextOffset+mMinThumbOffset, Thumb.MIN.equals(pressedThumb), canvas,
                     selectedValuesAreDefault);
         }
 
         // draw maximum thumb
-        drawThumb(normalizedToScreen(normalizedMaxValue), Thumb.MAX.equals(pressedThumb), canvas,
+        drawThumb(normalizedToScreen(normalizedMaxValue), mTextOffset, Thumb.MAX.equals(pressedThumb), canvas,
                 selectedValuesAreDefault);
 
         // draw the text if sliders have moved from default edges
@@ -626,11 +631,11 @@ public class RangeSeekBar<T extends Number> extends ImageView {
     /**
      * Draws the "normal" resp. "pressed" thumb image on specified x-coordinate.
      *
-     * @param screenCoord The x-coordinate in screen space where to draw the image.
+     * @param screenCordX The x-coordinate in screen space where to draw the image.
      * @param pressed     Is the thumb currently in "pressed" state?
      * @param canvas      The canvas to draw upon.
      */
-    private void drawThumb(float screenCoord, boolean pressed, Canvas canvas, boolean areSelectedValuesDefault) {
+    private void drawThumb(float screenCordX, float screenCordY, boolean pressed, Canvas canvas, boolean areSelectedValuesDefault) {
         Bitmap buttonToDraw;
         if (areSelectedValuesDefault) {
             buttonToDraw = thumbDisabledImage;
@@ -638,8 +643,8 @@ public class RangeSeekBar<T extends Number> extends ImageView {
             buttonToDraw = pressed ? thumbPressedImage : thumbImage;
         }
 
-        canvas.drawBitmap(buttonToDraw, screenCoord - mThumbHalfWidth,
-                mTextOffset,
+        canvas.drawBitmap(buttonToDraw, screenCordX - mThumbHalfWidth,
+                screenCordY,
                 paint);
     }
 

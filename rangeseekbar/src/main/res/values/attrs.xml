@@ -41,6 +41,8 @@
         <attr name="thumbDisabled" format="reference"/>
 
         <attr name="textDistanceToThumb" format="dimension"/>
+        <attr name="minThumbOffset" format="dimension"/>
+        <attr name="maxThumbOffset" format="dimension"/>
 
     </declare-styleable>
 
