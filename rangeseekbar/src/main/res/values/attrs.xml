@@ -39,10 +39,13 @@
         <attr name="thumbNormal" format="reference"/>
         <attr name="thumbPressed" format="reference"/>
         <attr name="thumbDisabled" format="reference"/>
+        <attr name="maxThumbNormal" format="reference"/>
+        <attr name="maxThumbPressed" format="reference"/>
 
-        <attr name="textDistanceToThumb" format="dimension"/>
         <attr name="minThumbOffset" format="dimension"/>
         <attr name="maxThumbOffset" format="dimension"/>
+        <attr name="maxTextPadding" format="dimension"/>
+        <attr name="minTextPadding" format="dimension"/>
 
     </declare-styleable>
 
