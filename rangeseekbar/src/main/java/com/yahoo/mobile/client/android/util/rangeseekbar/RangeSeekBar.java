@@ -399,8 +399,9 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                 mActivePointerId = event.getPointerId(event.getPointerCount() - 1);
                 pointerIndex = event.findPointerIndex(mActivePointerId);
                 mDownMotionX = event.getX(pointerIndex);
+                final float downMotionY = event.getY(pointerIndex);
 
-                pressedThumb = evalPressedThumb(mDownMotionX);
+                pressedThumb = evalPressedThumb(mDownMotionX, downMotionY);
 
                 // Only handle thumb presses.
                 if (pressedThumb == null) {
@@ -676,16 +677,17 @@ public class RangeSeekBar<T extends Number> extends ImageView {
     /**
      * Decides which (if any) thumb is touched by the given x-coordinate.
      *
-     * @param touchX The x-coordinate of a touch event in screen space.
+     * @param touchX      The x-coordinate of a touch event in screen space.
+     * @param downMotionY
      * @return The pressed thumb or null if none has been touched.
      */
-    private Thumb evalPressedThumb(float touchX) {
+    private Thumb evalPressedThumb(float touchX, float touchY) {
         Thumb result = null;
         boolean minThumbPressed = isInThumbRange(touchX, normalizedMinValue);
         boolean maxThumbPressed = isInThumbRange(touchX, normalizedMaxValue);
         if (minThumbPressed && maxThumbPressed) {
             // if both thumbs are pressed (they lie on top of each other), choose the one with more room to drag. this avoids "stalling" the thumbs in a corner, not being able to drag them apart anymore.
-            result = (touchX / getWidth() > 0.5f) ? Thumb.MIN : Thumb.MAX;
+            result = touchY > mMaxThumbOffset ? Thumb.MAX : Thumb.MIN;
         } else if (minThumbPressed) {
             result = Thumb.MIN;
         } else if (maxThumbPressed) {
