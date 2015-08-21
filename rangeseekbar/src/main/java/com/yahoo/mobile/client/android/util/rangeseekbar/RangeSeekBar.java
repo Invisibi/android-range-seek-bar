@@ -126,6 +126,9 @@ public class RangeSeekBar<T extends Number> extends ImageView {
     private Bitmap maxThumbImage;
     private Bitmap maxThumbPressedImage;
 
+    private float touchPositionX;
+    private float touchPositionY;
+
     public RangeSeekBar(Context context) {
         super(context);
         init(context, null);
@@ -413,6 +416,8 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                 onStartTrackingTouch();
                 trackTouchEvent(event);
                 attemptClaimDrag();
+                updateTouchPosition(pressedThumb.equals(Thumb.MIN));
+                listener.onTouchStart(touchPositionX, touchPositionY, getSelectedMinValue(), getSelectedMaxValue(), pressedThumb.equals(Thumb.MIN));
 
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -435,7 +440,8 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                     }
 
                     if (notifyWhileDragging && listener != null) {
-                        listener.onRangeSeekBarValuesChanged(this, getSelectedMinValue(), getSelectedMaxValue());
+                        updateTouchPosition(pressedThumb.equals(Thumb.MIN));
+                        listener.onRangeSeekBarValuesChanged(this, getSelectedMinValue(), getSelectedMaxValue(), touchPositionX, touchPositionY, pressedThumb.equals(Thumb.MIN));
                     }
                 }
                 break;
@@ -455,7 +461,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                 pressedThumb = null;
                 invalidate();
                 if (listener != null) {
-                    listener.onRangeSeekBarValuesChanged(this, getSelectedMinValue(), getSelectedMaxValue());
+                    listener.onTouchLeave();
                 }
                 break;
             case MotionEvent.ACTION_POINTER_DOWN: {
@@ -479,6 +485,19 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                 break;
         }
         return true;
+    }
+
+    private void updateTouchPosition(boolean isMinThumb) {
+        touchPositionX = calculateScreenCordX(isMinThumb);
+        touchPositionY = calculateScreenCordY(isMinThumb);
+    }
+
+    private float calculateScreenCordX(boolean isMinThumb) {
+        return normalizedToScreen(isMinThumb ? normalizedMinValue : normalizedMaxValue) - mThumbHalfWidth;
+    }
+
+    private float calculateScreenCordY(boolean isMinThumb) {
+        return mTextOffset + (isMinThumb ? mMinThumbOffset : mMaxThumbOffset);
     }
 
     private void onSecondaryPointerUp(MotionEvent ev) {
@@ -669,9 +688,9 @@ public class RangeSeekBar<T extends Number> extends ImageView {
             }
         }
 
-        float screenCordX = normalizedToScreen(isMinThumb ? normalizedMinValue : normalizedMaxValue) - mThumbHalfWidth;
-        float screenCordY = mTextOffset + (isMinThumb ? mMinThumbOffset : mMaxThumbOffset);
-        canvas.drawBitmap(buttonToDraw, screenCordX, screenCordY, paint);
+        float drawScreenCordX = calculateScreenCordX(isMinThumb);
+        float drawScreenCordY = calculateScreenCordY(isMinThumb);
+        canvas.drawBitmap(buttonToDraw, drawScreenCordX, drawScreenCordY, paint);
     }
 
     /**
@@ -786,7 +805,9 @@ public class RangeSeekBar<T extends Number> extends ImageView {
      */
     public interface OnRangeSeekBarChangeListener<T> {
 
-        void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, T minValue, T maxValue);
+        void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, T minValue, T maxValue, float positionX, float positionY, boolean isMinThumb);
+        void onTouchStart(float positionX, float positionY, T minValue, T maxValue, boolean isMinThumb);
+        void onTouchLeave();
     }
 
     /**
